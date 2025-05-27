@@ -11,6 +11,7 @@ Key features include:
     *   **Text-based terminal output**: Displays 8x8 distance matrices, object detection status, and sensor data validity.
     *   **Curses-based terminal GUI**: Offers a graphical representation of the 8x8 distance grid using colors to indicate distance, alongside object detection status.
 *   Configurable I2C addresses for the multiplexer and ToF sensors.
+*   Configurable I2C bus number.
 *   Adjustable display refresh rate (FPS).
 *   Basic object detection ("Object: Yes/No") with distance reporting.
 
@@ -23,7 +24,7 @@ To use this script, you will need the following hardware:
 
 **Connections:**
 1.  Connect each VL53L5CX sensor to a different channel on the I2C multiplexer.
-2.  Connect the I2C multiplexer to the I2C bus of your host system (e.g., Raspberry Pi's SDA/SCL pins). Ensure pull-up resistors are appropriately sized and placed if not already present on the modules.
+2.  Connect the I2C multiplexer to the I2C bus of your host system (e.g., Raspberry Pi's SDA/SCL pins for I2C bus 1, or other I2C buses if available). Ensure pull-up resistors are appropriately sized and placed if not already present on the modules.
 3.  Power all components according to their specifications.
 
 ## Software Prerequisites & Installation
@@ -39,7 +40,7 @@ To use this script, you will need the following hardware:
     *   Navigate to `Interface Options` -> `I2C`.
     *   Select `Yes` to enable the I2C interface.
     *   Reboot if prompted.
-    *   You may also need to install I2C tools: `sudo apt-get install i2c-tools`. Use `i2cdetect -y 1` (or 0) to check connected devices.
+    *   You may also need to install I2C tools: `sudo apt-get install i2c-tools`. Use `i2cdetect -y <bus_num>` (e.g., `i2cdetect -y 1`) to check connected devices.
 
 3.  **Install Required Python Libraries**:
     *   **`vl53l5cx-ctypes` and `smbus2`**: The `vl53l5cx-ctypes` library is used for interfacing with the sensors. `smbus2` is required for I2C communication on Linux systems and is typically installed as a dependency of `vl53l5cx-ctypes`.
@@ -88,6 +89,11 @@ python3 tof_control.py --sensors <idx1> [<idx2> ...] [options]
     *   Default: `0x29`.
     *   Address can be specified in hex (e.g., `0x29`) or decimal.
 
+*   `--i2c_bus_num I2C_BUS_NUM`
+    *   Optional.
+    *   The I2C bus number to use (e.g., 1 for `/dev/i2c-1`, 4 for `/dev/i2c-4`).
+    *   Default: `1`.
+
 *   `--fps FPS`
     *   Optional.
     *   Target frames per second for display refresh.
@@ -110,6 +116,11 @@ python3 tof_control.py --sensors <idx1> [<idx2> ...] [options]
 3.  **Run with sensors on channels 2 and 3, specifying a non-default multiplexer address (0x71):**
     ```bash
     python3 tof_control.py --sensors 2 3 --mux_address 0x71
+    ```
+
+4.  **Run with sensors on channels 0 and 1, using I2C bus number 4:**
+    ```bash
+    python3 tof_control.py --sensors 0 1 --i2c_bus_num 4
     ```
 
 ## Output Description

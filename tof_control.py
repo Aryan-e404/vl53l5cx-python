@@ -90,6 +90,10 @@ def parse_arguments():
     parser.add_argument('--tof_address', type=lambda x: int(x, 0), default=vl53l5cx_ctypes.DEFAULT_I2C_ADDRESS,
                         help=f'I2C address of the ToF sensors (default: {vl53l5cx_ctypes.DEFAULT_I2C_ADDRESS:#04x}). Allows hex (e.g. 0x29) or decimal.')
     
+    # I2C Bus Number
+    parser.add_argument('--i2c_bus_num', type=int, default=1,
+                        help='The I2C bus number (e.g., 1 for /dev/i2c-1, 4 for /dev/i2c-4). Default: 1.')
+
     # Display refresh rate
     parser.add_argument('--fps', type=float, default=10.0,
                         help='Target frames per second for display refresh (e.g., 10.0). Default: 10.0.')
@@ -134,16 +138,14 @@ def initialize_sensors(args):
     bus = None # Define bus here to ensure it's in scope for a potential finally block if needed
 
     try:
-        # Hardcode I2C bus number (e.g., 1 for /dev/i2c-1 on Raspberry Pi)
-        i2c_bus_number = 1
-        bus = smbus2.SMBus(i2c_bus_number)
-        print(f"Successfully opened I2C bus /dev/i2c-{i2c_bus_number}.")
+        bus = smbus2.SMBus(args.i2c_bus_num)
+        print(f"Successfully opened I2C bus /dev/i2c-{args.i2c_bus_num}.")
     except (FileNotFoundError, PermissionError) as e:
-        print(f"Error: Failed to open I2C bus /dev/i2c-{i2c_bus_number}. {e}")
-        print("Please ensure the I2C interface is enabled and you have permissions.")
+        print(f"Error: Failed to open I2C bus /dev/i2c-{args.i2c_bus_num}. {e}")
+        print("Please ensure the I2C interface is enabled and you have permissions, and that the bus number is correct.")
         sys.exit(1)
     except Exception as e: # Catch other smbus2 related errors
-        print(f"Error: An unexpected error occurred while opening I2C bus. {e}")
+        print(f"Error: An unexpected error occurred while opening I2C bus /dev/i2c-{args.i2c_bus_num}. {e}")
         sys.exit(1)
 
     for sensor_index in args.sensors:
