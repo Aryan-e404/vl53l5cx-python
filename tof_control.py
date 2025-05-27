@@ -569,7 +569,7 @@ def main():
                     continue
                 
                 try:
-                    if tof_sensor.check_data_ready():
+                    if tof_sensor.data_ready():
                         ranging_data = tof_sensor.get_ranging_data()
                         
                         if ranging_data and ranging_data.distance_mm and ranging_data.target_status:
@@ -607,7 +607,7 @@ def main():
                         # This means display functions will show "not available" or skip.
                         current_sensor_data[sensor_idx] = None # Explicitly mark as not ready this tick
 
-                except (vl53l5cx_ctypes.VL53L5CXError, IOError) as e: # Added IOError
+                except (RuntimeError, IOError) as e: # Confirmed this is as requested
                     print(f"Error reading data from sensor {sensor_idx}: {e}")
                     current_sensor_data[sensor_idx] = None # Indicate error
                 except Exception as e:
